@@ -9,80 +9,19 @@
         <link rel="stylesheet" href="./assets/css/index.css">
     </head>
 </html>
-<body>
-    <canvas class="canvas" id="canvas" width="1920" height="1081"></canvas>
+<body onload="init()">    
+    <img id="back" src="./assets/img/back.png">
+    <div id="cards" class="image">
+    </div>
+    <img id="machine" src="./assets/img/m1.png" class="image">
+    <img id="machine_light" src="./assets/img/m2.png" class="image">
+    <img id="btn" src="./assets/img/btn.png" class="image">
+    <img id="btn_down" src="./assets/img/btn_down.png" class="image">
+    <div id="score" class="image score">
+        0 P
+    </div>
 
     <script src="./assets/js/jquery.min.js"></script>
-    <script src="./assets/js/index.js"></script>
-    <script>
-        var canvas;
-        var ctx;
-        var width;
-        var height;
-
-        var back;
-
-        init();
-
-        function init() {
-            canvas = document.getElementById("canvas")
-            ctx = canvas.getContext("2d");
-            registerResizeListener();
-            drawCanvas();
-            drawBack();
-
-            if(screen != null) {
-                screen.orientation.lock('landscape');
-            }
-        }
-
-        function drawCanvas() {
-            width = window.innerWidth; 
-            height = window.innerHeight;
-            canvas.setAttribute("width", width);
-            canvas.setAttribute("height", height);
-        }
-
-        function registerResizeListener() {
-            window.onresize = () => {
-                console.log("window size changed."); 
-                drawCanvas();
-                drawBack();
-            }
-        }
-
-        function initBack() {
-            back = new Image();
-            back.src = "./assets/img/back.png";
-            back.onload = () => {
-                let sz = resize(back);
-                ctx.drawImage(back, 0, 0, sz.width, sz.height);
-            }
-        }
-
-        function drawBack() {
-            if(back == null) {
-                initBack();
-            } else {
-                let sz = resize(back);
-                ctx.drawImage(back, 0, 0, sz.width, sz.height);
-            }
-        }
-
-        function resize(image) {
-            let rw = image.width / width;
-            let rh = image.height / height;
-            let w = width; 
-            let h = height;
-            return {
-                width: w,
-                height : h
-            }
-        }
-        
-
-
-        
-
-    </script>
+    <script src="./assets/js/Core.js"></script>
+    <script src="./assets/js/SlotMachine.js"></script>
 </body>
