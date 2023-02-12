@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="icon" href="./assets/img/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <meta name="theme-color" content="#000000" />
+        <title>TomatoSlotMachine</title>
+        <link rel="stylesheet" href="./assets/css/index.css">
+    </head>
+</html>
+<body>
+    <canvas class="canvas" id="canvas" width="1920" height="1081"></canvas>
+
+    <script src="./assets/js/jquery.min.js"></script>
+    <script src="./assets/js/index.js"></script>
+    <script>
+        var canvas;
+        var ctx;
+        var width;
+        var height;
+
+        var back;
+
+        init();
+
+        function init() {
+            canvas = document.getElementById("canvas")
+            ctx = canvas.getContext("2d");
+            registerResizeListener();
+            drawCanvas();
+            drawBack();
+
+            if(screen != null) {
+                screen.orientation.lock('landscape');
+            }
+        }
+
+        function drawCanvas() {
+            width = window.innerWidth; 
+            height = window.innerHeight;
+            canvas.setAttribute("width", width);
+            canvas.setAttribute("height", height);
+        }
+
+        function registerResizeListener() {
+            window.onresize = () => {
+                console.log("window size changed."); 
+                drawCanvas();
+                drawBack();
+            }
+        }
+
+        function initBack() {
+            back = new Image();
+            back.src = "./assets/img/back.png";
+            back.onload = () => {
+                let sz = resize(back);
+                ctx.drawImage(back, 0, 0, sz.width, sz.height);
+            }
+        }
+
+        function drawBack() {
+            if(back == null) {
+                initBack();
+            } else {
+                let sz = resize(back);
+                ctx.drawImage(back, 0, 0, sz.width, sz.height);
+            }
+        }
+
+        function resize(image) {
+            let rw = image.width / width;
+            let rh = image.height / height;
+            let w = width; 
+            let h = height;
+            return {
+                width: w,
+                height : h
+            }
+        }
+        
+
+
+        
+
+    </script>
+</body>
