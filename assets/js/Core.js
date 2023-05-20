@@ -1,8 +1,20 @@
+/** CUSTOMIZE CONFIG SETTING */
+const POINT_ONE  = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]; //CARD NUMBER 1 TO 16, 0 IS NO MEANING.
+const POINT_TWO = 150;
+const POINT_THREE = 300;
+
+const PROB = [60, 30, 10]; // RECOMMAND: SUM OF EACH NUMBERS HAS TO BE 100%.
+const GAME_START_FEE = 30;
+/**  */
+
+
 let ril = [];
 let cardpos = [{x:726, y:268},{x:907, y:268},{x:1086, y:268},{x:726, y:437},{x:907, y:437},{x:1086, y:437}];
 let repeat = 50;
-let score = 0;
+let score = 100;
 let gameState = "ready";
+let type = 0; 
+let pool = [];
 
 window.onresize = () => {
     init();
@@ -14,6 +26,18 @@ function setRepeat(_r) {
 }
 
 function start() {
+    if(score - GAME_START_FEE < 0) { 
+        return false;
+    }
+    updateScore(-GAME_START_FEE);
+    
+    pool = [];
+    type = 0;
+    for(var j=0;j<PROB.length;j++) {
+        for(var i=0;i<PROB[j];i++)pool.push(j+1); 
+    }
+    type = pool[getRandomInt(0, pool.length)];
+    console.log('prob type = ' + type);
     suffle();
     return true;
 }
@@ -32,21 +56,12 @@ function updateScore(_s) {
 function calcResult(a, b, c) {
     
     let s = 0; 
-    let k = a;
     if(a == b && b == c) {
-        s = 100;
-    } if(a==b || b==c || a==c) {
-        s = 50;
-        if(b == c) {
-            k = b;
-        }
-    }
-    if(k == 8) {
-        s *= 10;
-    } else if(k >= 11 && k<=13) {
-        s *= 2;
-    } else if(k>=14) {
-        s *= 3;
+        s = POINT_THREE;
+    } else if(a==b || b==c || a==c) {
+        s = POINT_TWO;
+    } else {
+        s = Math.max(POINT_ONE[a], POINT_ONE[b], POINT_ONE[c]);
     }
     console.log(`calc result a=${a}, b=${b}, c=${c}, _s=${s}`);
     blink();
@@ -55,6 +70,7 @@ function calcResult(a, b, c) {
 }
 
 function init() {
+    updateScore(0);
     loadback();
     loadMachine();
     loadBtn();
@@ -70,9 +86,7 @@ function loadScore() {
     let h = 136 * rh;
     let x = 704 * rw;
     let y = 119 * rh;
-    $('#score').attr('width', `${w}px`);
     $('#score').attr('height', `${h}px`);
-    $('#score').css('left', `${x + (w/3)}px`);
     $('#score').css('top', `${y + (h/8)}px`);
     $('#score').css('font-size', `${h/2}px`);
 }
@@ -80,7 +94,7 @@ function loadScore() {
 function loadMachine() {
     $('#machine').width(window.innerWidth);
     $('#machine').height(window.innerHeight);
-
+    
     $('#machine_light').width(window.innerWidth);
     $('#machine_light').height(window.innerHeight);
     $('#machine_light').hide();
@@ -133,8 +147,11 @@ function loadBtn() {
         if(gameState !== "ready") {
             return;
         }
+        if(!start()) {
+            alert("포인트가 부족합니다.");
+            return;
+        }
         gameState = "start";
-        start();
         $('#btn').hide();
         $('#btn_down').show();
         setTimeout(()=>{
@@ -203,13 +220,13 @@ function moveCard(r, current, repeat) {
     t2 = parseInt(t2.replace('px', ''));
     t2+=offset;
     $(`#card${r-1}`).animate({top:t2}, duration, ()=>{
-        drawCard(r);
+        drawCard(r, current == repeat - 1);
         moveCard(r, current + 1, repeat);
     });
 }
 
-function drawCard(r) {
-    generateRil(r);
+function drawCard(r, isLast) {
+    generateRil(r, isLast);
     let rw = window.innerWidth / 1920;
     let rh = window.innerHeight / 1080;
     let x1 = cardpos[r-1].x * rw;
@@ -233,7 +250,29 @@ function initRil() {
     }
 }
 
-function generateRil(r) {
+function generateRil(r, isLast) {
     ril[r + 2] = ril[r - 1];
-    ril[r - 1] = getRandomInt(1, 17);
+    ril[r - 1] = isLast ? generateProbRil(r) : getRandomInt(1, 17);
+}
+
+function generateProbRil(r) {
+    if(type == 1) {
+        let n = getRandomInt(1, 17);
+        if(r == 2 && ril[3] == n) {
+            n = n + 1 < 17 ? n + 1 : n - 1;
+        } else if(r== 3 && (ril[3] == n || ril[4] == n)) {
+            n = n + 1 < 17 ? n + 1 : n - 1;
+        }
+        return n;
+        
+    } else if(type == 2) {
+        if(r == 3 && ril[3] != ril[4]) {
+            return ril[getRandomInt(3, 5)];
+        }
+    } else if(type == 3) {
+        if(r>1) {
+            return ril[3];
+        }
+    }
+    return getRandomInt(1, 17);
 }
